@@ -1,8 +1,8 @@
 # Notes on setup of this extension
-The extension uses the [Firebase C++ SDK](https://firebase.google.com/docs/cpp/setup) version 6.16.0. The libs and includes have been copied from the SDK to the extension.
+The extension uses the [Firebase C++ SDK](https://firebase.google.com/docs/cpp/setup) version 7.0.1. The libs and includes have been copied from the SDK to the extension.
 
 * Download link: https://firebase.google.com/download/cpp
-* Direct download link: https://dl.google.com/firebase/sdk/cpp/firebase_cpp_sdk_6.16.0.zip
+* Direct download link: https://dl.google.com/firebase/sdk/cpp/firebase_cpp_sdk_7.0.1.zip
 
 ## Android
 

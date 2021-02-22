@@ -247,10 +247,7 @@ static int Firebase_Analytics_SetUserId(lua_State* L) {
 }
 
 static int Firebase_Analytics_SetMinimumSessionDuration(lua_State* L) {
-	int top = lua_gettop(L);
-	int duration = luaL_checkint(L, 1);
-	SetMinimumSessionDuration(duration);
-	assert(top == lua_gettop(L));
+	dmLogInfo("set_minimum_session_duration() has been deprecated since Firebase SDK 7.0.0");
 	return 0;
 }
 
