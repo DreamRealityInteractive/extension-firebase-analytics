@@ -268,11 +268,10 @@ static int FirebaseAnalytics_Analytics_GetAuthToken(lua_State* L) {
 	}
 	g_FirebaseAnalytics_AuthTokenCallback = dmScript::CreateCallback(L, 1);
 
-	firebase::InitResult init_result;
-	auto* installations_object = installations::Installations::GetInstance(firebase::App::GetInstance(), &init_result);
+	auto* installations_object = installations::Installations::GetInstance(firebase::App::GetInstance());
 
 	installations_object->GetToken()
-		.OnCompletion([](const Future& completed_future) {
+		.OnCompletion([](const Future< std::string >& completed_future) {
 		if (!dmScript::IsCallbackValid(g_FirebaseAnalytics_InstanceIdCallback))
 		{
 			dmLogWarning("Analytics InstanceId callback is not valid");
