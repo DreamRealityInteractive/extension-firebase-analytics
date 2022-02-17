@@ -270,7 +270,7 @@ static int FirebaseAnalytics_Analytics_GetAuthToken(lua_State* L) {
 
 	auto* installations_object = installations::Installations::GetInstance(firebase::App::GetInstance());
 
-	installations_object->GetToken()
+	installations_object->GetToken(false)
 		.OnCompletion([](const Future< std::string >& completed_future) {
 		if (!dmScript::IsCallbackValid(g_FirebaseAnalytics_InstanceIdCallback))
 		{
