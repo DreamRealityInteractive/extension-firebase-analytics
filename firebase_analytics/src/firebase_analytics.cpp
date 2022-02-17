@@ -11,6 +11,7 @@
 #include "firebase/analytics/event_names.h"
 #include "firebase/analytics/parameter_names.h"
 #include "firebase/future.h"
+#include "firebase/installations.h"
 
 #include "firebase.h"
 #include "firebase_analytics.h"
