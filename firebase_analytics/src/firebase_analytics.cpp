@@ -20,6 +20,7 @@ using namespace firebase;
 using namespace firebase::analytics;
 
 static dmScript::LuaCallbackInfo* g_FirebaseAnalytics_InstanceIdCallback;
+static dmScript::LuaCallbackInfo* g_FirebaseAnalytics_AuthTokenCallback;
 static bool g_FirebaseAnalytics_Initialized = false;
 
 #if defined(DM_PLATFORM_ANDROID)
@@ -257,6 +258,54 @@ static int FirebaseAnalytics_Analytics_SetUserId(lua_State* L) {
 	return 0;
 }
 
+static int FirebaseAnalytics_Analytics_GetAuthToken(lua_State* L) {
+	DM_LUA_STACK_CHECK(L, 0);
+	if (!g_FirebaseAnalytics_Initialized)
+	{
+		dmLogWarning("Firebase Analytics has not been initialized! Make sure to call firebase.analytics.init().");
+		return 0;
+	}
+	g_FirebaseAnalytics_AuthTokenCallback = dmScript::CreateCallback(L, 1);
+
+	firebase::InitResult init_result;
+	auto* installations_object = installations::Installations::GetInstance(firebase::App::GetInstance(), &init_result);
+
+	installations_object->GetToken()
+		.OnCompletion([](const Future& completed_future) {
+		if (!dmScript::IsCallbackValid(g_FirebaseAnalytics_InstanceIdCallback))
+		{
+			dmLogWarning("Analytics InstanceId callback is not valid");
+			return;
+		}
+
+		if (dmScript::SetupCallback(g_FirebaseAnalytics_AuthTokenCallback))
+		{
+			lua_State* L = dmScript::GetCallbackLuaContext(g_FirebaseAnalytics_AuthTokenCallback);
+
+			if (completed_future.error() == 0) {
+				lua_pushstring(L, completed_future.result()->c_str());
+				int ret = lua_pcall(L, 2, 0, 0);
+				if (ret != 0) {
+					lua_pop(L, 1);
+				}
+			}
+			else {
+				dmLogError("%d: %s", completed_future.error(), completed_future.error_message());
+				lua_pushnil(L);
+				lua_pushstring(L, completed_future.error_message());
+				int ret = lua_pcall(L, 3, 0, 0);
+				if (ret != 0) {
+					lua_pop(L, 2);
+				}
+			}
+			dmScript::TeardownCallback(g_FirebaseAnalytics_AuthTokenCallback);
+		}
+
+		dmScript::DestroyCallback(g_FirebaseAnalytics_AuthTokenCallback);
+		g_FirebaseAnalytics_AuthTokenCallback = 0;
+			});
+	return 0;
+}
 
 static void LuaInit(lua_State* L) {
 	DM_LUA_STACK_CHECK(L, 0);
@@ -286,6 +335,7 @@ static void LuaInit(lua_State* L) {
 	lua_pushtablestringfunction(L, "set_screen", FirebaseAnalytics_Analytics_SetScreen);
 	lua_pushtablestringfunction(L, "set_user_property", FirebaseAnalytics_Analytics_SetUserProperty);
 	lua_pushtablestringfunction(L, "set_user_id", FirebaseAnalytics_Analytics_SetUserId);
+	lua_pushtablestringfunction(L, "get_auth_token", FirebaseAnalytics_Analytics_GetAuthToken);
 
 	// From firebase/analytics/event_names.h
 	lua_pushtablestringstring(L, "EVENT_ADDPAYMENTINFO", kEventAddPaymentInfo);
